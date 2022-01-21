@@ -42,6 +42,12 @@ class Branch:
             dup.children = [c.duplicate() for c in self.children]
         return dup
 
+    def update_tree_type(self, tree_type):
+        self.tree_type = tree_type
+        if self.children:
+            for c in self.children:
+                c.update_tree_type(tree_type)
+
     #################
     #    DISPLAY    #
     #################
@@ -61,6 +67,12 @@ class Branch:
     #################
     #   NAVIGATE    #
     #################
+
+    def depth(self):
+        if self.children:
+            return 1 + max([c.depth() for c in self.children])
+        else:
+            return 1
 
     def n_children(self):
         """Return the total number of children (excluding root) as an int (recursive)"""

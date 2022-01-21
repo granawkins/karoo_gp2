@@ -19,6 +19,15 @@ def test_branch_initialize(rng, operators, terminals):
     b2 = b.duplicate()
     assert b2.parse() == 'b/2/3/c+b/1/b+1'
 
+    def _check_all_nodes(b, tree_type):
+        assert b.tree_type == tree_type
+        if b.children:
+            for c in b.children:
+                _check_all_nodes(c, tree_type)
+    _check_all_nodes(b2, 'f')
+    b2.update_tree_type('g')
+    _check_all_nodes(b2, 'g')
+
 
 def test_branch_navigate(rng, operators, terminals):
     b = Branch.generate(rng, operators, terminals, tree_type, depth)

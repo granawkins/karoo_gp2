@@ -46,4 +46,5 @@ class Operators():
         self.operators = [Operator(o) for o in ops]
 
     def get(self):
-        return np.array(self.operators)
+        return self.operators
+
