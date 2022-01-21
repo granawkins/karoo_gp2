@@ -1,4 +1,12 @@
 from karoo_gp import Operator, Terminal
+import ast
+
+operator_ref = {ast.Add: '+',
+                ast.Sub: '-',
+                ast.Mult: '*',
+                ast.Div: '/',
+                ast.Pow: '**',
+                ast.USub: '-'}
 
 class Branch:
     """An recursive tree element with a node, parent and children"""
@@ -48,6 +56,28 @@ class Branch:
             for c in self.children:
                 c.update_tree_type(tree_type)
 
+    @classmethod
+    def load(cls, expr, tree_type):
+        if isinstance(expr, ast.Name):
+            node = Terminal(expr.id)
+            branch = Branch(node, tree_type)
+        elif isinstance(expr, ast.Num):
+            node = Terminal(expr.value)
+            branch = Branch(node, tree_type)
+        else:
+            if type(expr) == ast.Expression:
+                expr = expr.body
+            symbol = operator_ref[type(expr.op)]
+            node = Operator(symbol)
+            branch = Branch(node, tree_type)
+            if isinstance(expr, ast.UnaryOp):
+                branch.children = [cls.load(expr.left, tree_type)]
+            elif isinstance(expr, ast.BinOp):
+                branch.children = [cls.load(expr.left, tree_type), cls.load(expr.right, tree_type)]
+            else:
+                raise ValueError("Unrecognized op type in load:", expr.op)
+        return branch
+
     #################
     #    DISPLAY    #
     #################
@@ -63,6 +93,15 @@ class Branch:
             return f"{self.node.symbol}{self.children[0].parse()}"
         elif len(self.children) == 2:
             return f"{self.children[0].parse()}{self.node.symbol}{self.children[1].parse()}"
+
+    def save(self):
+        if not self.children:
+            return self.node.symbol
+        elif len(self.children) == 1:
+            return f"({self.node.save}{self.children[0].save()})"
+        elif len(self.children) == 2:
+            return f"({self.children[0].save()}{self.node.symbol}{self.children[1].save()})"
+
 
     #################
     #   NAVIGATE    #

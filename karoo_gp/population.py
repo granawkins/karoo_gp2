@@ -19,7 +19,7 @@ class Population:
         self.criteria = criteria   # str, tree attribute to sort by
         self.trees = trees  # list, Trees
         # TODO: Add history
-        # TODO: Add signature: hash(variables + operators)
+        # TODO: Add signature: hash(variables + operators)  
 
     @classmethod
     def generate(cls, rng, operators, terminals, params={}):

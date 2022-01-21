@@ -1,5 +1,6 @@
 from karoo_gp import Operator, Terminal, Branch
 import numpy as np
+import ast
 
 tree_type = 'f'
 depth = 3
@@ -12,7 +13,7 @@ def test_branch_initialize(rng, operators, terminals):
     assert b.parent == None
     assert len(b.children) == 2
 
-    assert b.__repr__() == "<Branch: <Operator: +(binary)>>"
+    assert b.__repr__() == "<Branch: <Operator: +(arithmetic)>>"
 
     assert b.parse() == 'b/2/3/c+b/1/b+1'
 
@@ -28,6 +29,9 @@ def test_branch_initialize(rng, operators, terminals):
     b2.update_tree_type('g')
     _check_all_nodes(b2, 'g')
 
+    parsed = ast.parse(b2.parse(), mode='eval')
+    l = Branch.load(parsed, 'g')
+    assert l.parse() == 'b/2/3/c+b/1/b+1'
 
 def test_branch_navigate(rng, operators, terminals):
     b = Branch.generate(rng, operators, terminals, tree_type, depth)

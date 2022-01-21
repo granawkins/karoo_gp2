@@ -6,12 +6,13 @@ solvers = {'numpy': NumpySolver, 'tensorflow': TensorflowSolver}
 
 class Model:
 
-    def __init__(self, operators, terminals, population_params={}, solver='numpy', seed=12345):
+    def __init__(self, operators, terminals, params={}, solver='numpy', seed=12345):
         self.rng = np.random.RandomState(seed)
-        self.population = Population.generate(self.rng, operators, terminals, population_params)
+        self.population = Population.generate(self.rng, operators, terminals, params)
+        solver = solver.lower()
         if solver not in solvers:
             raise ValueError("Unrecognized solver:", solver)
-        self.solver = solvers[solver.lower()]()
+        self.solver = solvers[solver]()
 
     def __repr__(self):
         return f"<Model: {self.population} Fittest: {self.fittest()}>"

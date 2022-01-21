@@ -1,5 +1,6 @@
 from karoo_gp import Branch
 from sympy import sympify
+import ast
 
 DEFAULT_TREE = dict(depth=3,
                     tree_type='g')
@@ -17,6 +18,17 @@ class Tree:
         root = Branch.generate(rng, operators, terminals, tree_type, depth)
         if tree_type == 'r':
             root.update_tree_type('g')
+        return cls(root)
+
+    def save(self):
+        return f"{self.root.tree_type}{self.root.parse}"
+
+    @classmethod
+    def load(cls, saved):
+        tree_type = saved[1]
+        expr = saved[1:]
+        parsed = ast.parse(expr, mode='eval')
+        root = Branch.load(parsed, tree_type)
         return cls(root)
 
     def duplicate(self):

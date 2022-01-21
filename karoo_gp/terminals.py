@@ -21,5 +21,12 @@ class Terminals():
         self.constants = [Terminal(c, type(c)) for c in constants]
         # TODO: Add class mappings
 
+    def __repr__(self):
+        v_string = "".join([v for v in self.variables])
+        c_string = "".join([str(c.symbol) for c in self.constants])
+        t_string = f"{v_string}, {c_string}"
+        return f"<Terminals: {len(self.get())}({t_string[:10]})>"
+
+
     def get(self):
         return np.array(list(self.variables.values()) + self.constants)
