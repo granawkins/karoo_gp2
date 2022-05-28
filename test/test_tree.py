@@ -1,7 +1,14 @@
 from karoo_gp import Tree, Branch
 import numpy as np
 
-def test_tree_initialize(rng, operators, terminals):
+expected_display = '''
+                     ________+____________________
+           ________/__________                ___-_____
+      ___*_____           ___+_____         a         b
+    3         3         1         b
+'''
+
+def test_tree_initialize(capsys, rng, operators, terminals):
     t = Tree.generate(rng, operators, terminals)
 
     assert t.fitness == None
@@ -13,6 +20,11 @@ def test_tree_initialize(rng, operators, terminals):
     t2 = Tree.generate(rng, operators, terminals, {'depth': 4, 'tree_type': 'f'})
     assert t2.root.n_children() == 30
     assert str(t2.sym()) == '-4*a/3 - b + c - 10 - c/a'
+
+    # TODO: Fix
+    # disp = t.display()
+    # print(disp)
+    # assert capsys.readouterr().out == expected_display
 
 
 def test_tree_mutate(rng, operators, terminals):

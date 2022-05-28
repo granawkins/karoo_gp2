@@ -37,6 +37,7 @@ def test_branch_navigate(rng, operators, terminals):
     b = Branch.generate(rng, operators, terminals, tree_type, depth)
 
     assert b.n_children() == 14
+    assert b.n_cols() == 8
 
     node, i = b.get_child(12)
     assert node.parse() == 'b+1'

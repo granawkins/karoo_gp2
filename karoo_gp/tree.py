@@ -1,6 +1,6 @@
-from karoo_gp import Branch
+import ast, math
 from sympy import sympify
-import ast
+from karoo_gp import Branch
 
 DEFAULT_TREE = dict(depth=3,
                     tree_type='g')
@@ -38,8 +38,8 @@ class Tree:
     def depth(self):
         return self.root.depth()
 
-    def parse(self):
-        return self.root.parse()
+    def parse(self, **kwargs):
+        return self.root.parse(**kwargs)
 
     def sym(self):
         return sympify(self.root.parse())
@@ -50,6 +50,55 @@ class Tree:
         if len(sym_repr) > 16:
             sym_repr = sym_repr[:13] + "..."
         return f"<Tree: '{sym_repr}'{fit_repr}>"
+
+    def display(self, width=60, symbol_max_len=3):
+        output = ''
+        last_children = [(self.root, width)]  # Nodes for next depth as (branch, branch_width) tuples
+        for i in range(self.root.depth()):
+            depth_output = ''          # Text to be printed for this depth
+            depth_children = []  # Children from items in this depth
+
+            # Iterate through children of the last depth
+            for (branch, branch_width) in last_children:
+                symbol = ' ' if branch is None else str(branch.node.symbol)[:symbol_max_len]
+                this_output = symbol.center(branch_width)
+
+                this_children = []      # Children from this item
+                cum_width = 0           # Cumulative character-width of all subtrees
+                cum_cols = 0            # Cumulative maximum node-width of all subtrees
+                # If no children, propogate the empty spaces below terminal
+                if not branch or not branch.children:
+                    cum_cols += 1
+                    cum_width += branch_width
+                    this_children.append((None, branch_width))
+                # If children, fill-in this_output with '_' to first/last child label
+                else:
+                    children_cols = [c.n_cols() for c in branch.children]
+                    total_cols = sum(children_cols)
+                    for child, child_cols in zip(branch.children, children_cols):
+                        # Convert each child's 'cols' into character spacing
+                        cum_cols += child_cols
+                        cum_ratio = cum_cols / total_cols
+                        target_width = math.ceil(cum_ratio * branch_width) - cum_width
+                        remaining_width = branch_width - cum_width
+                        child_width = min(target_width, remaining_width)
+                        # Add record and update tracked values
+                        this_children.append((child, child_width))
+                        cum_width += child_width
+                    # Add lines to the output
+                    start_padding = this_children[0][1] // 2          # Midpoint of first child
+                    end_padding = branch_width - (this_children[-1][1] // 2)  # ..of last child
+                    with_line = ''
+                    for i, v in enumerate(this_output):
+                        with_line += '_' if (i > start_padding and i < end_padding and v == ' ') else v
+                    this_output = with_line
+                depth_output += this_output
+                depth_children += this_children
+            last_children = depth_children
+            if last_children:
+                depth_output += '\n'
+            output += depth_output
+        return output
 
     ##############
     #   EVOLVE   #

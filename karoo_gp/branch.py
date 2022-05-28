@@ -102,6 +102,11 @@ class Branch:
         elif len(self.children) == 2:
             return f"({self.children[0].save()}{self.node.symbol}{self.children[1].save()})"
 
+    def n_cols(self):
+        if not self.children:
+            return 1
+        else:
+            return sum([c.n_cols() for c in self.children])
 
     #################
     #   NAVIGATE    #
